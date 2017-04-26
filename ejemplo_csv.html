@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>p5.js</title>
+  <link href="css/bootstrap.min.css" rel="stylesheet">
+  <link href="style.css" rel="stylesheet">
+<!--[if lt IE 9]>
+  <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
+  <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+<![endif]-->
+<!--lo de p5.js-->
+  <script src="js/p5.js" type="text/javascript"></script>
+  <script src="js/p5.dom.js" type="text/javascript"></script>
+  <script src="js/p5.sound.js" type="text/javascript"></script>
+  <script src="sketches/sketch_csv.js" type="text/javascript"></script>
+</head>
+
+<body>
+<header>
+<div id="top"></div>
+</header>
+<section>
+<div class="container">
+<div class="row">
+<div class="col-sm-10 col-sm-offset-1 col-md-8 col-md-offset-2">
+<h1>Introducción a la programación de scripts del lado del cliente con p5.js</h1>
+<h3>CSV</h3>
+<p><a href="https://es.wikipedia.org/wiki/Valores_separados_por_comas" target="_blank">CSV (Comma Separated Value)</a> es una simplificación de una hoja de cálculo de Microsoft Excel, que representa la separación de columnas con comas y la separación de filas con saltos de línea. Este formato se ha convertido en un pseudo estándar, incluso entre plataformas que no son de Microsoft.</p>
+<p>Un CSV, con una primera línea de encabezado, puede verse así</p>
+<pre><code>year,movie,oscars,nominations
+2016,La La Land,6,14
+2015,Mad Max: Fury Road,6,10</code></pre>
+
+
+<p>Si me refiero al CSV como <code>data</code>, e informo al computador que la primera fila, como cabecera, se descuente, bien podría recibir el valor <code>2016</code> si escribo <code>data.get(0,0)</code>, y obtendría el valor <code>14</code> escribiendo <code>data.get(0,3)</code>.</p>
+<p>También podría obtener el valor 2016 seguido del 2015 si es que escribo <code>data.get(n,0)</code>, con <code>n</code> cambiando de 0 a 1.</p>
+
+
+
+<h3>p5.js + CSV</h3>
+<p>En esta página, mediante la consulta a un CSV al que llegué por vía de <a href="http://cooldatasets.com/">Cool Datasets</a>, puedo enterarme de cuántos pasajeros había en el Titanic, y puedo separar los pasajeros según categoría y sobrevivencia.</p>
+<p>Lo primero que corresponde hacer es crear una variable global, a la que llamaremos <code>data</code>. Luego se hace la pre-carga del CSV que debe estar en línea (asegúrense de tener el documento en una url que comience con <code>http<strong>s</strong>//:</code> porque su GitHub Page también será <code>http<strong>s</strong>://</code>). En esta pre-carga, los contenidos en el CSV son asignados como contenidos a la variable <code>data</code>.</p>
+<pre><code>var data;
+function preload() {
+data = loadTable("https://raw.githubusercontent.com/profesorfaco/dno037-2017-07/gh-pages/data/titanic_passengers.csv", "true", "header");
+}</code></pre>
+<p>La función <code>setup()</code>, que se carga una única vez, y se carga después de que se pre-cargue el CSV como contenidos en la variable <code>data</code>, queda igual que <a href="index.html">en la página anterior.</a></p>
+<pre><code>function setup() {
+   canvas = createCanvas(windowWidth, windowHeight * 0.8);
+   canvas.parent('top');
+   canvas.position(0, 0);
+   canvas.style('z-index', '-1');
+   noLoop();
+   noStroke();
+}</code></pre>
+<p>Donde pueden ver más cambios es en la función <code>draw()</code>. Pueden notar que declaro varias <strong>var</strong>iables locales, para poder hacer distintos conteos. También tengo 2 bucle y, encima de eso, defino algunas condiciones <code>if(){}</code>, <code>if else(){}</code>.</p>
+<p>Además imprimo algunas frase. Esa impresión es visible en <a href="https://transferwise.com/es/help/article/2247654/tecnico-navegador/como-abrir-la-consola-de-tu-navegador" rel="nofollow">su consola de Javascript</a>.</p>
+<p>Para terminar, agrego unos círculos blancos, para indicar la cantidad de pasajaros en cada clase. Y el círculo negro encima corresponde a los fallecidos en la misma clase. La proporción de fallecidos en segunda y tercera clase es parecida. En ambos casos es mayor la proporción de los muertos en primera clase.</p>
+<pre><code>function draw() {
+   background(237, 34, 93);
+
+   //acá están las variables locales
+
+   var total_primera = 0;
+   var total_segunda = 0;
+   var total_tercera = 0;
+   var muertos_primera = 0;
+   var muertos_segunda = 0;
+   var muertos_tercera = 0;
+
+   //con esto cuento el total de pasajeros por clase
+
+   for (var a = 0; a < data.getRowCount(); a++) {
+      if (data.get(a, 2) == 1) {
+         total_primera++
+      } else if (data.get(a, 2) == 2) {
+         total_segunda++
+      } else if (data.get(a, 2) == 3) {
+         total_tercera++
+      }
+   }
+
+   //con esto cuento los fallecidos por clase
+
+   for (var b = 0; b < data.getRowCount(); b++) {
+      if ((data.get(b, 1) == 0) && (data.get(b, 2) == 3)) {
+         muertos_tercera++
+      } else if ((data.get(b, 1) == 0) && (data.get(b, 2) == 2)) {
+         muertos_segunda++
+      } else if ((data.get(b, 1) == 0) && (data.get(b, 2) == 1)) {
+         muertos_primera++
+      }
+   }
+   //todo esto se imprime en su consola de JavaScript
+
+   print("En el Titanic viajaban " + data.getRowCount() + " pasajeros.")
+   print("Eran " + total_primera + " pasajeros los que viajaban en la primera clase, de ellos fallecieron " + muertos_primera + ".");
+   print("Eran " + total_segunda + " pasajeros los que viajaban en la segunda clase, de ellos fallecieron " + muertos_segunda + ".");
+   print("Eran " + total_tercera + " pasajeros los que viajaban en la tercera clase, de ellos fallecieron " + muertos_tercera + ".");
+
+   //esto dibuja los círculos blancos, del total de pasajeros por clase
+
+   fill(255);
+   ellipse((width / 4), (height / 2), (total_primera / 3), (total_primera / 3));
+   ellipse((width / 4 * 2), (height / 2), (total_segunda / 3), (total_segunda / 3));
+   ellipse((width / 4 * 3), (height / 2), (total_tercera / 3), (total_tercera / 3));
+
+   //estos dibuja los círculos negros, de total de facellecidos por clase
+
+   fill(0);
+   ellipse((width / 4), (height / 2), (muertos_primera / 3), (muertos_primera / 3));
+   ellipse((width / 4 * 2), (height / 2), (muertos_segunda / 3), (muertos_segunda / 3));
+   ellipse((width / 4 * 3), (height / 2), (muertos_tercera / 3), (muertos_tercera / 3));
+}</code></pre>
+<p>Finalmente, para mantener la "responsividad" del dibujo, en este caso también se agrega una función que le indica al canvas que debe ajustarse según los ajustes que se hagan al tamaño de la ventana. El boceto del programa completo queda como lo que sigue:</p>
+<pre><code>var data;
+
+  function preload() {
+     data = loadTable("https://raw.githubusercontent.com/profesorfaco/dno037-2017-07/gh-pages/data/titanic_passengers.csv", "true", "header");
+  }
+
+  function setup() {
+     canvas = createCanvas(windowWidth, windowHeight * 0.8);
+     canvas.parent('top');
+     canvas.position(0, 0);
+     canvas.style('z-index', '-1');
+     noLoop();
+     noStroke();
+  }
+
+  function windowResized() {
+     resizeCanvas(windowWidth, windowHeight * 0.8);
+  }
+
+  function draw() {
+     background(237, 34, 93);
+     var total_primera = 0;
+     var total_segunda = 0;
+     var total_tercera = 0;
+     var muertos_primera = 0;
+     var muertos_segunda = 0;
+     var muertos_tercera = 0;
+     //con esto cuento el total de pasajeros por clase
+     for (var a = 0; a < data.getRowCount(); a++) {
+        if (data.get(a, 2) == 1) {
+           total_primera++
+        } else if (data.get(a, 2) == 2) {
+           total_segunda++
+        } else if (data.get(a, 2) == 3) {
+           total_tercera++
+        }
+     }
+     //con esto, que incluye una doble condición de muerto y clase, cuento los fallecidos por clase
+     for (var b = 0; b < data.getRowCount(); b++) {
+        if ((data.get(b, 1) == 0) && (data.get(b, 2) == 3)) {
+           muertos_tercera++
+        } else if ((data.get(b, 1) == 0) && (data.get(b, 2) == 2)) {
+           muertos_segunda++
+        } else if ((data.get(b, 1) == 0) && (data.get(b, 2) == 1)) {
+           muertos_primera++
+        }
+     }
+     //todo esto se imprime en su consola de JavaScript
+     print("En el Titanic viajaban " + data.getRowCount() + " pasajeros.")
+     print("Eran " + total_primera + " pasajeros los que viajaban en la primera clase, de ellos fallecieron " + muertos_primera + ".");
+     print("Eran " + total_segunda + " pasajeros los que viajaban en la segunda clase, de ellos fallecieron " + muertos_segunda + ".");
+     print("Eran " + total_tercera + " pasajeros los que viajaban en la tercera clase, de ellos fallecieron " + muertos_tercera + ".");
+     //esto dibuja los círculos blancos, del total de pasajeros.
+     fill(255);
+     ellipse((width / 4), (height / 2), (total_primera / 3), (total_primera / 3));
+     ellipse((width / 4 * 2), (height / 2), (total_segunda / 3), (total_segunda / 3));
+     ellipse((width / 4 * 3), (height / 2), (total_tercera / 3), (total_tercera / 3));
+     //estos dibuja los círculos negros, de total de facellecidos.
+     fill(0);
+     ellipse((width / 4), (height / 2), (muertos_primera / 3), (muertos_primera / 3));
+     ellipse((width / 4 * 2), (height / 2), (muertos_segunda / 3), (muertos_segunda / 3));
+     ellipse((width / 4 * 3), (height / 2), (muertos_tercera / 3), (muertos_tercera / 3));
+  }</code></pre>
+<div class="alert alert-danger">
+  <p>Ahora busquen en la carpeta de este sitio el <code>sketches/sketch_csv.js</code>. Allí:</p>
+<ul>
+  <li>modifiquen los textos que se imprimen en la consola de JavaScript;</li>
+  <li>mejoren la visualización, pueden agregar indicaciones con palabras o usar otras formas;</li>
+  <li>intenten contar el número de hombres y mujeres que había en cada categoría; y</li>
+  <li>continúen a <a href="ejemplo_json.html">la próxima página</a>, donde revisaremos cómo se carga un documento JSON</li>
+</ul>
+</div>
+</div><!--col-sm-10…-->
+</div><!--row-->
+</div><!--container-->
+</section>
+<footer>
+  <div class="container">
+    <div class="row">
+      <div class="col-sm-10 col-sm-offset-1 col-md-8 col-md-offset-2">
+        <hr>
+        <p>Diseño y Nuevos Medios &bull; Clase 7 &bull; Miércoles 26 de abril, 2017.</p>
+      </div>
+    </div>
+  </div>
+</footer>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+<script src="js/bootstrap.min.js"></script>
+</body>
+</html>

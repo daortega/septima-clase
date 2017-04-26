@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>p5.js</title>
+  <link href="css/bootstrap.min.css" rel="stylesheet">
+  <link href="style.css" rel="stylesheet">
+<!--[if lt IE 9]>
+  <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
+  <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+<![endif]-->
+<!--lo de p5.js-->
+  <script src="js/p5.js" type="text/javascript"></script>
+  <script src="js/p5.dom.js" type="text/javascript"></script>
+  <script src="js/p5.sound.js" type="text/javascript"></script>
+  <script src="sketches/sketch_json.js" type="text/javascript"></script>
+</head>
+
+<body>
+<header>
+<div id="top"></div>
+</header>
+<section>
+<div class="container">
+<div class="row">
+<div class="col-sm-10 col-sm-offset-1 col-md-8 col-md-offset-2">
+<h1>Introducción a la programación de scripts del lado del cliente con p5.js</h1>
+<h3>JSON</h3>
+<p><a href="http://www.json.org/json-es.html">JSON (JavaScript Object Notation)</a> es un subconjunto de la notación literal de objetos de JavaScript. Actualmente, debido a su amplia adopción como alternativa a XML, se considera un formato de lenguaje independiente.</p>
+<p>Un JSON bien ordenado puede verse así:</p>
+<pre><code>[
+  {
+    "name": "Valparaíso",
+    "code": "05101",
+    "provincia": "Valparaíso",
+    "region": "Valparaíso",
+    "region_number": "V",
+    "region_iso_3166_2": "CL-VS"
+  },
+  {
+    "name": "Casablanca",
+    "code": "05102",
+    "provincia": "Valparaíso",
+    "region": "Valparaíso",
+    "region_number": "V",
+    "region_iso_3166_2": "CL-VS"
+  },
+  {
+    "name": "Concón",
+    "code": "05103",
+    "provincia": "Valparaíso",
+    "region": "Valparaíso",
+    "region_number": "V",
+    "region_iso_3166_2": "CL-VS"
+  }
+]</code></pre>
+
+<p>Teniendo a la <a href="https://chrome.google.com/webstore/detail/json-formatter/">vista este JSON de manera ordenada</a>, y llamándolo <code>data</code>, bien podría decir que el <code>data[0]</code> me presenta datos de la comuna de Valparaíso, mientras que <code>data[1]</code> me presenta datos de la comuna de Casablanca, y <code>data[2]</code> me presenta datos de Concón.</p>
+<p>Una exploración de este JSON que pida <code>data[n].code</code>, siendo <code>n</code> los valores 0, 1 y 2, me entregaría, respectivamente: 050101, 05102, 05103.</p>
+
+<h3>p5.js + JSON</h3>
+<p>En esta página, mediante la consulta a un JSON al que llegué buscando <a href="https://earthquake.usgs.gov/earthquakes/feed/v1.0/geojson.php">más información sobre los temblores</a>, puedo enterarme de cuántas veces ha temblado en el mundo la última semana, y cuántas en Chile. Además podría ver el detalle de cada temblor.</p>
+<p>Para realizar las consultas, lo primero que tengo que hacer es declarar la url del JSON como una variable global. Luego, dentro de la función de <code>setup()</code>, debo llamar a esta variable.</p>
+<pre><code>var url = 'https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/4.5_week.geojson';
+
+function setup() {
+   loadJSON(url, gotData, 'json');
+   canvas = createCanvas(windowWidth, windowHeight * 0.8);
+   canvas.parent('top');
+   canvas.position(0, 0);
+   canvas.style('z-index', '-1');
+   noStroke();
+   noLoop();
+}</code></pre>
+
+<p>Pero no me conviene llevar los datos a una función que se dibuja una y otra vez, podría exigir de más la memoria del computador y también al servidor desde donde estoy obteniendo el JSON. Lo que debo hacer es trabajar con otra función, cuyo nombre coincide con la palabra que va justo después de url en ese llamado que hago a JSON.</p>
+<pre><code>function gotData(data) {
+    console.log(data);
+    var mundial = 0;
+    var local = 0;
+    for (var a = 0; a < data.features.length; a++) {
+      mundial++;
+      if (data.features[a].properties.place.includes("Chile")) {
+         local++;
+      }
+    }
+    textSize(20);
+    text("En todo el mundo, han habido " + mundial + " temblores sobre la magnitud de 4.5 en última semana.", width / 2, 150);
+    text("Solamente en Chile, han habido " + local + " temblores sobre la misma magnitud durante el mismo plazo.", width / 2, 200);
+    var promedio = round((local * 100) / mundial);
+    textSize(30);
+    text("Chile ha concentrado el " + promedio + "%.", width / 2, 270);
+}
+
+function draw() {
+   background(237, 34, 93);
+   fill(255);
+   textAlign(CENTER);
+}</code></pre>
+<p>Pueden encontrarse muchos datos compartidos con JSON. Acá tienen pocos ejemplos, para no marearlos más de la cuenta:</p>
+<ul>
+  <li><a href="http://swapi.co/">SWAPI - The Star Wars API</a></li>
+  <li><a href="https://openweathermap.org/api">Weather API - OpenWeatherMap</a></li>
+  <li><a href="http://developer.nytimes.com/">API Gallery - NYT Developers</a></li>
+  <li><a href="https://github.com/dariusk/corpora">Corpora</a></li>
+</ul>
+
+<p>Después de ver el listado, lo más probable es que se estén preguntando <strong>qué es una API</strong>. Aprovechemos la repuesta del FAQ en el NY Times Developers:</p> 
+<blockquote>APIs (application programming interfaces) allow you to programmatically access […] data for use in your own applications. Our goal is to facilitate a wide range of uses […]</blockquote>
+<p>A la posibilidad de encontrarse muchos datos compartidos en JSON, es necesario sumar la siguiente posibilidad: hay maneras <a href="https://gist.github.com/pamelafox/1878143">rápidas de armar sus propios JSON</a>, <a href="http://jsonlint.com/">validarlos</a> y <a href="http://myjson.com/">ponerlos en línea</a>.</p>
+<div class="alert alert-danger">
+  <p>Ahora busquen en la carpeta de este sitio el <code>sketches/sketch_json.js</code>. Allí:</p>
+<ul>
+  <li>modifiquen el documento JSON que se consulta;</li>
+  <li>hagan las consultas y visualizaciones que correspondan al nuevo documento consultado;</li>
+  <li>dupliquen esta página y su respectivo sketch, para consultar un JSON generado por ustedes mismos; y </li>
+  <li>antes que termine la clase: junten todo lo hecho, para publicarlo en GitHub Pages.</li>
+</ul>
+</div>
+</div><!--col-sm-10…-->
+</div><!--row-->
+</div><!--container-->
+</section>
+<footer>
+  <div class="container">
+    <div class="row">
+      <div class="col-sm-10 col-sm-offset-1 col-md-8 col-md-offset-2">
+        <hr>
+        <p>Diseño y Nuevos Medios &bull; Clase 7 &bull; Miércoles 26 de abril, 2017.</p>
+      </div>
+    </div>
+  </div>
+</footer>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+<script src="js/bootstrap.min.js"></script>
+</body>
+</html>

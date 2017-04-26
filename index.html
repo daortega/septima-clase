@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>p5.js</title>
+  <meta name="robots" content="noindex, nofollow">
+  <link href="css/bootstrap.min.css" rel="stylesheet">
+  <link href="style.css" rel="stylesheet">
+<!--[if lt IE 9]>
+  <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
+  <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+<![endif]-->
+<!--lo de p5.js, bibliotecas -->
+  <script src="js/p5.js" type="text/javascript"></script>
+  <script src="js/p5.dom.js" type="text/javascript"></script>
+  <script src="js/p5.sound.js" type="text/javascript"></script>
+  <script src="sketches/sketch_index.js" type="text/javascript"></script>
+</head>
+
+<body>
+<header>
+<div id="top"></div>   <!--Aquí se añade lo del numero de letras en header-->
+</header>
+<section>
+<div class="container">
+<div class="row">
+<div class="col-sm-10 col-sm-offset-1 col-md-8 col-md-offset-2">
+<h1>Introducción a la programación de scripts del lado del cliente con p5.js</h1>
+<h3>Primeros paso</h3>
+<pre><code>function setup(){}
+function draw(){}</code></pre>
+<p>A quien tenga algunos conocimientos de <a href="https://processing.org/" target="_blank" rel="nofollow">Processing</a>, le resultará bastante evidente el parecido de este primer paso.</p>
+<p>Tenemos un <code>function setup()</code>, que se ejecuta una única vez, en la carga del programa boceteado (<em>sketch</em>).</p>
+<p>Luego tenemos un <code>function draw()</code>, que se ejecuta una y otra vez, mientras el <em>sketch</em> esté en ejecución, dibujándose en un <code>frameRate()</code> que por defecto es de 60 por segundo.</p>
+<pre><code>function setup() {
+  canvas = createCanvas(windowWidth, windowHeight * 0.8);
+  canvas.parent('top');
+  canvas.position(0, 0);
+  canvas.style('z-index', '-1');
+  noLoop();
+}
+function draw(){}</code></pre>
+<p>En este segundo paso, lo que hago es definir un espacio para aquello que se dibujará una y otra vez. Ese espacio será un <a href="https://developer.mozilla.org/es/docs/Web/Guide/HTML/Canvas_tutorial" target="_blank" rel="nofollow">canvas</a>.</p>
+<p>Este espacio de canvas tendrá el ancho de toda la ventana, y un 80% del alto. Se ubicará dentro de la división con la identidad "top". Se posicionará a 0 de la izquierda y 0 de arriba. Además, a través de CSS defino que su posición en el eje Z sea de -1.</p>
+<p>Además, para efectos de este primer ejemplo, no quiero que se dibuje una y otra vez el mismo dibujo: No quiero que exista ese loop.</p>
+<pre><code>function setup() {
+  canvas = createCanvas(windowWidth, windowHeight * 0.8);
+  canvas.parent('top');
+  canvas.position(0, 0);
+  canvas.style('z-index', '-1');
+  noLoop();
+}
+function draw(){
+  var palabra = "supercalifragilisticoespialidoso";
+  var contador = 0;
+  fill(255);
+  background(237,34,93);
+  textSize(50);
+  for (var x = 0; x < palabra.length; x++) {
+     contador++;
+  }
+  textAlign(CENTER);
+  text(contador, width / 2, height / 2);
+}</code></pre>
+<p>Aquí comienzo a dibujar con programación. De arriba hacia abajo, lo que hago es:</p>
+<ul>
+<li>definir una <strong>var</strong>iable <code>nombre</code>, a la que se le asigna como contenido "supercalifragilisticoespialidoso" (debe estar entre comillas);</li>
+<li>definir una <strong>var</strong>iable <code>contador</code>, a la que se le asigna como contenido un número (no usa comillas);</li>
+<li>definir con RGB un color de fondo;</li>
+<li>definir un tamaño de cuerpo tipográfico en 50 pixeles;</li>
+<li>definir un bucle que consiste en tres expresiones opcionales, encerradas en paréntesis y separadas por puntos y comas, seguidas de una sentencia ejecutada en un bucle;</li>
+<li>definir una aliniación de texto centrada; y</li>
+<li>definir un texto, que se ubicará justo al centro del ancho y alto del canvas.</li>
+</ul>
+<p>Lo que merece una mayor explicación es el bucle <code><strong>for (</strong>expresión inicial; condición de tope para la modificación de la expresión; modificación de la expresión<strong>){</strong> lo que se repite mientras se cumpla con la condición <strong>}</strong></code></p>
+<p>La expresión inicial es la asignación del contenido <code>0</code> a la <strong>var</strong>iable <code>x</code>; la condición de tope es que la <strong>var</strong>iable <code>x</code> sea menor al "largo" del string contenido en la <strong>var</strong>iable <code>palabra</code>; la modificación de la expresión es un <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Arithmetic_Operators#Increment_()" target="_blank" rel="nofollow">incremento</a> de <code>x</code>, en 1 cada vez.</p>
+<p>Dentro de este bucle colocamos la <strong>var</strong>iable <code>contador</code>. Antes del bucle se le asignó el contenido <code>0</code>, que dentro del bucle se incrementa 1 vez en cada repetición. Después del bucle, la <strong>var</strong>iable <code>x</code> tiene un valor igual a la cantidad de letras que componen la <code>palabra</code></p>
+<pre><code>function setup() {
+  canvas = createCanvas(windowWidth, windowHeight * 0.8);
+  canvas.parent('top');
+  canvas.position(0, 0);
+  canvas.style('z-index', '-1');
+  noLoop();
+}
+
+function windowResized() {
+  resizeCanvas(windowWidth, windowHeight * 0.8);
+}
+
+function draw() {
+  var palabra = "supercalifragilisticoespialidoso";
+  var contador = 0;
+  fill(255);
+  background(237,34,93);
+  textSize(50);
+  for (var x = 0; x < palabra.length; x++) {
+    contador++;
+  }
+  textAlign(CENTER);
+  text(contador, width / 2, height / 2);
+}</code></pre>
+<p>Finalmente, para mantener la "responsividad" del dibujo, agrego una función que le indica al canvas que debe ajustarse según los ajustes que se hagan al tamaño de la ventana.</p>
+<div class="alert alert-danger">
+<p>Ahora busquen en la carpeta de este sitio el <code>sketches/sketch_index.js</code>. Allí:</p>
+<ul>
+  <li>modifiquen la palabra "supercalifragilisticoespialidoso" por otra. Luego revisen cómo hace, automáticamente, la "contabilidad" de las letras en la palabra;</li>
+  <li>modifiquen el color de fondo, que se aplica al canvas, y el color de relleno, que se aplica a elementos como la tipografía; y</li>
+  <li>continúen a <a href="ejemplo_csv.html">la próxima página</a>, donde trabajaremos con un documento CSV</li>
+</ul>
+</div>
+</div><!--col-sm-10…-->
+</div><!--row-->
+</div><!--container-->
+</section>
+<footer>
+  <div class="container">
+    <div class="row">
+      <div class="col-sm-10 col-sm-offset-1 col-md-8 col-md-offset-2">
+        <hr>
+        <p>Diseño y Nuevos Medios &bull; Clase 7 &bull; Miércoles 26 de abril, 2017.</p>
+      </div>
+    </div>
+  </div>
+</footer>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+<script src="js/bootstrap.min.js"></script>
+</body>
+</html>
